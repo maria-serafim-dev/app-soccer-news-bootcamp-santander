@@ -16,23 +16,24 @@ class NewsFragment : Fragment() {
 
 
     private val binding get() = _binding!!
+    private val newsViewModel = ViewModelProvider(this)[NewsViewModel::class.java]
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val newsViewModel =
-            ViewModelProvider(this)[NewsViewModel::class.java]
-
         _binding = FragmentNewsBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.rvNews.layoutManager = LinearLayoutManager(context)
         newsViewModel.news.observe(viewLifecycleOwner) {
             binding.rvNews.adapter = NewsAdapter(it)
         }
-        return root
     }
 
     override fun onDestroyView() {

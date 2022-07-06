@@ -14,25 +14,29 @@ class FavoritesFragment : Fragment() {
     private var _binding: FragmentFavoritesBinding? = null
 
     private val binding get() = _binding!!
+    private val favoritesViewModel = ViewModelProvider(this)[FavoritesViewModel::class.java]
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val favoritesViewModel =
-            ViewModelProvider(this)[FavoritesViewModel::class.java]
+
 
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val textView: TextView = binding.textFavorites
         favoritesViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
-        return root
-    }
 
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
