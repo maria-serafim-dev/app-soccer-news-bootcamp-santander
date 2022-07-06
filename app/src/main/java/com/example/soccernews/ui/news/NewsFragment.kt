@@ -16,7 +16,7 @@ class NewsFragment : Fragment() {
 
 
     private val binding get() = _binding!!
-    private val newsViewModel = ViewModelProvider(this)[NewsViewModel::class.java]
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,7 +29,7 @@ class NewsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val newsViewModel = ViewModelProvider(this)[NewsViewModel::class.java]
         binding.rvNews.layoutManager = LinearLayoutManager(context)
         newsViewModel.news.observe(viewLifecycleOwner) {
             binding.rvNews.adapter = NewsAdapter(it)
