@@ -1,6 +1,8 @@
 package com.example.soccernews.ui.adapter
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +20,12 @@ class NewsAdapter (private val listNews: List<News>) : RecyclerView.Adapter<News
             binding.tvTitle.text = news.title
             binding.tvDescription.text = news.description
             Glide.with(context).load(news.image).into(binding.ivThumbnail)
+
+            binding.btOpenLink.setOnClickListener {
+                val queryUrl: Uri = Uri.parse(news.link)
+                val intent = Intent(Intent.ACTION_VIEW, queryUrl)
+                context.startActivity(intent)
+            }
         }
     }
 
