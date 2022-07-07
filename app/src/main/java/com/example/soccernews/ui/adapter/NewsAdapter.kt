@@ -26,6 +26,15 @@ class NewsAdapter (private val listNews: List<News>) : RecyclerView.Adapter<News
                 val intent = Intent(Intent.ACTION_VIEW, queryUrl)
                 context.startActivity(intent)
             }
+
+            binding.ivShare.setOnClickListener {
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = "text/pain"
+                intent.putExtra(Intent.EXTRA_SUBJECT, news.title)
+                intent.putExtra(Intent.EXTRA_TEXT, news.link)
+                context.startActivity(Intent.createChooser(intent, "Share via"))
+            }
+
         }
     }
 
