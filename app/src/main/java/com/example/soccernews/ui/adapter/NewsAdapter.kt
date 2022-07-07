@@ -43,7 +43,7 @@ class NewsAdapter (private val listNews: List<News>, private val favoriteListene
                 notifyItemChanged(position)
             }
 
-            if (news.favorite) binding.ivFavorite.setColorFilter(ContextCompat.getColor(context, R.color.pink_500))
+            if (news.favorite) binding.ivFavorite.setColorFilter(ContextCompat.getColor(context, R.color.pink_500)) else binding.ivFavorite.setColorFilter(ContextCompat.getColor(context, R.color.gray))
         }
     }
 
