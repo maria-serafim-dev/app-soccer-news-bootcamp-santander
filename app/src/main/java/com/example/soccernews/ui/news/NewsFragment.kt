@@ -8,9 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.soccernews.NewsApplication
+import com.example.soccernews.R
 import com.example.soccernews.databinding.FragmentNewsBinding
 import com.example.soccernews.domain.News
 import com.example.soccernews.ui.adapter.NewsAdapter
+import com.google.android.material.snackbar.Snackbar
 
 class NewsFragment : Fragment() {
 
@@ -43,6 +45,28 @@ class NewsFragment : Fragment() {
 
         setLayoutManager()
         observeChanges()
+        observeChangesSwipe()
+        swipeRefreshListener()
+    }
+
+    private fun observeChangesSwipe() {
+        newsViewModel.state.observe(viewLifecycleOwner) {
+            when (it) {
+                State.DOING -> binding.srlNews.isRefreshing = true
+                State.DONE -> binding.srlNews.isRefreshing = false
+                State.ERROR -> {
+                    binding.srlNews.isRefreshing = false
+                    Snackbar.make(binding.srlNews, getString(R.string.text_error_network), Snackbar.LENGTH_LONG).show()
+                }
+                else -> binding.srlNews.isRefreshing = false
+            }
+        }
+    }
+
+    private fun swipeRefreshListener() {
+        binding.srlNews.setOnRefreshListener {
+            newsViewModel.getNews()
+        }
     }
 
     private fun setLayoutManager() {

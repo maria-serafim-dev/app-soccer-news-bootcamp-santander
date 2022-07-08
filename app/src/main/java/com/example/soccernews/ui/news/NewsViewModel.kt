@@ -16,7 +16,8 @@ class NewsViewModel(private val repository: NewsRepository): ViewModel(){
     private val _news = MutableLiveData<List<News>>()
     val news: LiveData<List<News>> = _news
     private lateinit var newsApi: NewsApi
-
+    private val _state = MutableLiveData<State>()
+    val state : LiveData<State> = _state
     init {
         setupHttpClient()
         getNews()
@@ -31,17 +32,21 @@ class NewsViewModel(private val repository: NewsRepository): ViewModel(){
         newsApi =  retrofit.create(NewsApi::class.java)
     }
 
-    private fun getNews(){
+    fun getNews(){
+        _state.value = State.DOING
         newsApi.getNews().enqueue(object : Callback<List<News>> {
             override fun onResponse(call: Call<List<News>>, response: Response<List<News>>) {
                 if(response.isSuccessful){
                     _news.value = response.body()
+                    _state.value = State.DONE
                 }else{
-
+                    _state.value = State.ERROR
                 }
             }
 
             override fun onFailure(call: Call<List<News>>, t: Throwable) {
+                t.printStackTrace()
+                _state.value = State.ERROR
             }
         })
     }
@@ -61,4 +66,8 @@ class NewsViewModelFactory(private val repository: NewsRepository) : ViewModelPr
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
+}
+
+enum class State{
+    DOING, DONE, ERROR
 }
