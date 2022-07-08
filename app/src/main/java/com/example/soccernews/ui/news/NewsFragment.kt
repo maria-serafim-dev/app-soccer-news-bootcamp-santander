@@ -7,17 +7,25 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.soccernews.MainActivity
+import com.example.soccernews.NewsApplication
 import com.example.soccernews.databinding.FragmentNewsBinding
 import com.example.soccernews.domain.News
 import com.example.soccernews.ui.adapter.NewsAdapter
-import com.example.soccernews.ui.adapter.NewsListener
 
 class NewsFragment : Fragment() {
 
 
     private var _binding: FragmentNewsBinding? = null
-    private val newsViewModel : NewsViewModel by viewModels()
+
+    private val newsViewModel : NewsViewModel by viewModels {
+        NewsViewModelFactory((activity?.application as NewsApplication).repository)
+    }
+
+    private val adapter : NewsAdapter by lazy {
+        NewsAdapter{ news ->
+            saveNews(news)
+        }
+    }
 
     private val binding get() = _binding!!
 
@@ -37,22 +45,19 @@ class NewsFragment : Fragment() {
         observeChanges()
     }
 
-
-
     private fun setLayoutManager() {
         binding.rvNews.layoutManager = LinearLayoutManager(context)
     }
 
     private fun observeChanges() {
-        val activity: MainActivity = activity as MainActivity
-
+        binding.rvNews.adapter = adapter
         newsViewModel.news.observe(viewLifecycleOwner) {
-            binding.rvNews.adapter = NewsAdapter(it, object : NewsListener {
-                override fun onFavorite(news: News) {
-                    activity.db.newsDao().save(news)
-                }
-            })
+            adapter.submitList(it)
         }
+    }
+
+    private fun saveNews(news: News){
+        newsViewModel.saveNews(news)
     }
 
     override fun onDestroyView() {

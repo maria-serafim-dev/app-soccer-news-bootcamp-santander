@@ -6,19 +6,21 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.soccernews.R
 import com.example.soccernews.databinding.NewsItemBinding
 import com.example.soccernews.domain.News
 
-class NewsAdapter (private val listNews: List<News>, private val favoriteListener: NewsListener) : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
+class NewsAdapter (private val favoriteListener: (News) -> Unit) : ListAdapter<News, NewsAdapter.ViewHolder>(NewsCallback()) {
 
     private lateinit var binding: NewsItemBinding
 
 
     inner class ViewHolder (private val binding: NewsItemBinding) : RecyclerView.ViewHolder (binding.root) {
-        fun onBind(news: News, context: Context, favoriteListener: NewsListener, position: Int){
+        fun onBind(news: News, context: Context, favoriteClickListener: (News) -> Unit, position: Int){
             binding.tvTitle.text = news.title
             binding.tvDescription.text = news.description
             Glide.with(context).load(news.image).into(binding.ivThumbnail)
@@ -39,7 +41,7 @@ class NewsAdapter (private val listNews: List<News>, private val favoriteListene
 
             binding.ivFavorite.setOnClickListener{
                 news.favorite = !news.favorite
-                favoriteListener.onFavorite(news)
+                favoriteClickListener(news)
                 notifyItemChanged(position)
             }
 
@@ -53,15 +55,18 @@ class NewsAdapter (private val listNews: List<News>, private val favoriteListene
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val news = listNews[position]
+        val news = getItem(position)
         holder.onBind(news, holder.itemView.context, favoriteListener, position)
     }
 
-    override fun getItemCount(): Int {
-        return listNews.size
-    }
 }
 
-interface NewsListener {
-    fun onFavorite(news: News)
+class NewsCallback : DiffUtil.ItemCallback<News>() {
+    override fun areItemsTheSame(oldItem: News, newItem: News): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: News, newItem: News): Boolean {
+        return oldItem == newItem
+    }
 }
