@@ -13,14 +13,18 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class NewsViewModel(private val repository: NewsRepository): ViewModel(){
 
-    private val _news = MutableLiveData<List<News>>()
-    val news: LiveData<List<News>> = _news
+    private var _news = MutableLiveData<MutableList<News>>()
+    val news: LiveData<MutableList<News>> = _news
     private lateinit var newsApi: NewsApi
     private val _state = MutableLiveData<State>()
     val state : LiveData<State> = _state
+    private lateinit var _newsRoom : LiveData<List<News>>
+    val newsRoom: LiveData<List<News>> get() = _newsRoom
+
     init {
         setupHttpClient()
         getNews()
+        getNewsRooms()
     }
 
     private fun setupHttpClient() {
@@ -34,8 +38,8 @@ class NewsViewModel(private val repository: NewsRepository): ViewModel(){
 
     fun getNews(){
         _state.value = State.DOING
-        newsApi.getNews().enqueue(object : Callback<List<News>> {
-            override fun onResponse(call: Call<List<News>>, response: Response<List<News>>) {
+        newsApi.getNews().enqueue(object : Callback<MutableList<News>> {
+            override fun onResponse(call: Call<MutableList<News>>, response: Response<MutableList<News>>) {
                 if(response.isSuccessful){
                     _news.value = response.body()
                     _state.value = State.DONE
@@ -44,11 +48,15 @@ class NewsViewModel(private val repository: NewsRepository): ViewModel(){
                 }
             }
 
-            override fun onFailure(call: Call<List<News>>, t: Throwable) {
+            override fun onFailure(call: Call<MutableList<News>>, t: Throwable) {
                 t.printStackTrace()
                 _state.value = State.ERROR
             }
         })
+    }
+
+    private fun getNewsRooms() {
+        _newsRoom = repository.allFavoriteNews.asLiveData()
     }
 
     fun saveNews(news: News){

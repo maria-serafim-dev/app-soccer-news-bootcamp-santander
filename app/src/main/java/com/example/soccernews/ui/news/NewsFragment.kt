@@ -75,8 +75,22 @@ class NewsFragment : Fragment() {
 
     private fun observeChanges() {
         binding.rvNews.adapter = adapter
-        newsViewModel.news.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+
+        newsViewModel.news.observe(viewLifecycleOwner) { listNewsRemote ->
+            newsViewModel.newsRoom.observe(viewLifecycleOwner) { listNewsRoom ->
+                checkFavorite(listNewsRemote, listNewsRoom)
+                adapter.submitList(listNewsRemote)
+            }
+        }
+    }
+
+    private fun checkFavorite(
+        listNewsRemote: MutableList<News>,
+        listNewsRoom: List<News>
+    ) {
+        listNewsRemote.forEach { newRemote ->
+            val result = listNewsRoom.any { listRoom -> listRoom.id == newRemote.id }
+            newRemote.favorite = result
         }
     }
 

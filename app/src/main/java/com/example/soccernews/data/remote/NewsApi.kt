@@ -7,7 +7,7 @@ import retrofit2.http.GET
 interface NewsApi {
 
     @GET("news.json")
-    fun getNews() : Call<List<News>>
+    fun getNews() : Call<MutableList<News>>
 
 
 }
