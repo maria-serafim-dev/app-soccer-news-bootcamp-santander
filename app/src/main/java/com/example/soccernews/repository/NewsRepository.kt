@@ -2,6 +2,7 @@ package com.example.soccernews.repository
 
 import androidx.annotation.WorkerThread
 import com.example.soccernews.data.dao.NewsDAO
+import com.example.soccernews.data.remote.NewsApiRetrofit
 import com.example.soccernews.domain.News
 import kotlinx.coroutines.flow.Flow
 
@@ -15,4 +16,7 @@ class NewsRepository(private val newsDao: NewsDAO){
 
     val allFavoriteNews : Flow<List<News>> = newsDao.loadFavoriteNews()
 
+    suspend fun getNewsRemote() : MutableList<News> {
+        return  NewsApiRetrofit.retrofitService.getNews()
+    }
 }

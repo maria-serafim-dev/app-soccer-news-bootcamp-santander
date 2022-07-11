@@ -1,58 +1,30 @@
 package com.example.soccernews.ui.news
 
 import androidx.lifecycle.*
-import com.example.soccernews.data.remote.NewsApi
 import com.example.soccernews.domain.News
 import com.example.soccernews.repository.NewsRepository
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class NewsViewModel(private val repository: NewsRepository): ViewModel(){
 
     private var _news = MutableLiveData<MutableList<News>>()
     val news: LiveData<MutableList<News>> = _news
-    private lateinit var newsApi: NewsApi
     private val _state = MutableLiveData<State>()
     val state : LiveData<State> = _state
     private lateinit var _newsRoom : LiveData<List<News>>
     val newsRoom: LiveData<List<News>> get() = _newsRoom
 
     init {
-        setupHttpClient()
         getNews()
         getNewsRooms()
     }
 
-    private fun setupHttpClient() {
-        val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("https://maria-serafim-dev.github.io/soccer-news-bootcamp-santander-api/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        newsApi =  retrofit.create(NewsApi::class.java)
-    }
-
     fun getNews(){
         _state.value = State.DOING
-        newsApi.getNews().enqueue(object : Callback<MutableList<News>> {
-            override fun onResponse(call: Call<MutableList<News>>, response: Response<MutableList<News>>) {
-                if(response.isSuccessful){
-                    _news.value = response.body()
-                    _state.value = State.DONE
-                }else{
-                    _state.value = State.ERROR
-                }
-            }
-
-            override fun onFailure(call: Call<MutableList<News>>, t: Throwable) {
-                t.printStackTrace()
-                _state.value = State.ERROR
-            }
-        })
+        viewModelScope.launch{
+            _news.value = repository.getNewsRemote()
+            _state.value = State.DONE
+        }
     }
 
     private fun getNewsRooms() {
